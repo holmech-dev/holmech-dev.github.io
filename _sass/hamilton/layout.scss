@@ -366,12 +366,14 @@ ul.social-icons {
     margin-bottom: $spacing-unit;
 
     h2 {
+      font-variant: all-small-caps;
+      //font-size: 36px;
       margin-bottom: 0;
-      @include relative-font-size(1.4);
+      //@include relative-font-size(1.4);
 
-      @media screen and (min-width: $on-large) {
-        @include relative-font-size(1.5);
-      }
+      //@media screen and (min-width: $on-large) {
+      //  @include relative-font-size(1.5);
+      //}
     }
 
     .post-excerpt {
@@ -423,7 +425,8 @@ ul.social-icons {
 
 .post-meta {
   @include relative-font-size(0.8);
-  margin-bottom: $spacing-unit / 2;
+  //margin-bottom: $spacing-unit / 2;
+  margin-bottom: 0.25px;
 }
 
 .post-footer {

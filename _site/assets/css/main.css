@@ -735,11 +735,8 @@ ul.social-icons {
     border-bottom: 1px solid;
     margin-bottom: 2rem; }
     .post-list li h2 {
-      margin-bottom: 0;
-      font-size: 1.4rem; }
-      @media screen and (min-width: 1100px) {
-        .post-list li h2 {
-          font-size: 1.5rem; } }
+      font-variant: all-small-caps;
+      margin-bottom: 0; }
     .post-list li .post-excerpt {
       margin-top: 1rem; }
       .post-list li .post-excerpt p {
@@ -778,7 +775,7 @@ ul.social-icons {
 
 .post-meta {
   font-size: 0.8rem;
-  margin-bottom: 1rem; }
+  margin-bottom: 0.25px; }
 
 .post-footer {
   padding-top: 1rem;
