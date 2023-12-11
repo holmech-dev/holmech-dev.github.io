@@ -134,7 +134,7 @@
   <div class="post-content e-content" itemprop="articleBody">
     <p>This post outlines how to create a Docker environment with ROS middleware setup.</p>
 
-<p>Docker offers a great amount of portability when it comes to preparing software environments, this lends well when developing applications with middleware such as ROS (Robotics Operating System) where managing a large amount of software libraries maybe necessary.</p>
+<p>Docker offers a great amount of portability when it comes to preparing software environments, this lends well when developing applications with middleware such as ROS (Robotics Operating System) where managing a large amount of software libraries and portability maybe necessary.</p>
 
 <p>To create the Docker environment a Docker image is needed, this will serve as our template or environment snapshot for creating our Docker container. A container is the instantiation of this image that we can work in. To build the image, we first need a way to instruct the build process what should be contained in the image, this is done with a Dockerfile.</p>
 
@@ -158,7 +158,7 @@ Using the <code class="language-plaintext highlighter-rouge">FROM</code> command
 
 <p><a href="https://stackoverflow.com/questions/63476497/docker-build-with-ubuntu-18-04-image-hangs-after-prompting-for-country-of-origin">https://stackoverflow.com/questions/63476497/docker-build-with-ubuntu-18-04-image-hangs-after-prompting-for-country-of-origin</a></p>
 
-<p>Then, let’s try and run a system update to validate we are able to install packages successfully.</p>
+<p>Then, let’s try and run a system update to validate we can successfully install packages.</p>
 
 <h3 id="dockerfile">Dockerfile</h3>
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM nvidia/cuda:11.1.1-devel-ubuntu20.04
@@ -177,25 +177,13 @@ RUN apt-get update \
     update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
 </code></pre></div></div>
 
-<p>Update…</p>
+<p>Save the file. We then need to try and build the image for the first time. Using the <code class="language-plaintext highlighter-rouge">build</code> command, the <code class="language-plaintext highlighter-rouge">-t</code> argument is used to tag the image. This tag takes the username first followed by the image name. The <code class="language-plaintext highlighter-rouge">-f</code> argument is used to use the point the build process to the file we want that includes the build instructions, in this case the <code class="language-plaintext highlighter-rouge">Dockerfile.base</code> file just created.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM nvidia/cuda:11.1.1-devel-ubuntu20.04
-
-USER root
-
-# disable interactive configuration mode
-ENV DEBIAN_FRONTEND noninteractive
-
-RUN apt-get update \
-    &amp;&amp; \
-    apt-get install -y \
-    &amp;&amp; \
-    rm -rf /var/lib/apt/lists/* \
-    &amp;&amp; \
-    update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
-
-
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">holmech@linux-desktop:~$</span><span class="w"> </span>docker build <span class="nt">-t</span> holmec/noetic-base <span class="nt">-f</span> Dockerfile.base <span class="nb">.</span>
 </code></pre></div></div>
+
+<p>The command may take some time to complete. A successful build should have the following terminal output.</p>
+
 
   </div>
 
@@ -230,7 +218,8 @@ RUN apt-get update \
   </div>
 
   <div class="footer-col">
-    <p></p>
+    <!--<p></p>-->
+    <p>&copy Chris Holmes. Powered by Jeykll</p>
   </div>
 </div>
 
