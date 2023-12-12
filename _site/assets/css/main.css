@@ -304,7 +304,7 @@ template {
   display: none; }
 
 html {
-  font-size: 18px; }
+  font-size: 16px; }
   @media screen and (max-width: 600px) {
     html {
       font-size: 0.89rem; } }
@@ -472,7 +472,7 @@ ul.task-list li {
   width: 100vw;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 60px 1fr; }
+  grid-template-rows: 54px 1fr; }
 
 /**
  * Site header
@@ -480,8 +480,8 @@ ul.task-list li {
 .site-header {
   border-top: 5px solid;
   border-bottom: 1px solid;
-  min-height: 54px;
-  line-height: 54px; }
+  min-height: 48px;
+  line-height: 48px; }
   @media screen and (max-width: 600px) {
     .site-header {
       display: flex; } }
@@ -491,7 +491,7 @@ ul.task-list li {
   top: 3px;
   left: 1rem; }
   .site-sidebar-button img {
-    width: 45px;
+    width: 40px;
     height: auto;
     border-radius: 50%; }
   @media screen and (min-width: 600px) {
@@ -519,19 +519,19 @@ ul.task-list li {
     display: none; }
   .site-nav .menu-icon {
     float: right;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     line-height: 0;
     text-align: center; }
     .site-nav .menu-icon svg {
-      width: 18px;
-      height: 18px;
-      padding-top: 9px; }
+      width: 16px;
+      height: 16px;
+      padding-top: 8px; }
   .site-nav label[for="nav-trigger"] {
     display: block;
     float: right;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     z-index: 2;
     cursor: pointer; }
   .site-nav input ~ .trigger {
@@ -546,7 +546,7 @@ ul.task-list li {
     padding: 0;
     overflow: hidden; }
     .site-nav ul.trigger li a {
-      line-height: 31.05px;
+      line-height: 27.6px;
       display: inline;
       padding: 5px 10px;
       margin-left: auto; }
@@ -658,7 +658,7 @@ ul.social-icons {
     margin: 0.3em; }
 
 .author-avatar {
-  width: 144px;
+  width: 128px;
   height: auto;
   border-radius: 50%; }
 
@@ -897,7 +897,7 @@ ul.post-categories li {
 
 .back-to-top {
   display: block;
-  font-size: 14.4px;
+  font-size: 12.8px;
   text-transform: uppercase;
   text-align: right;
   text-decoration: none; }

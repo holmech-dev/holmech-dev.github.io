@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="3.9.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" hreflang="en" /><updated>2023-12-11T23:09:11+00:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Chris Holmes</title><author><name>C. Holmes</name></author><entry><title type="html">Docker &amp;amp; Ros</title><link href="http://localhost:4000/2023/11/24/Docker-&-ROS.html" rel="alternate" type="text/html" title="Docker &amp;amp; Ros" /><published>2023-11-24T00:00:00+00:00</published><updated>2023-11-24T00:00:00+00:00</updated><id>http://localhost:4000/2023/11/24/Docker-&amp;-ROS</id><content type="html" xml:base="http://localhost:4000/2023/11/24/Docker-&amp;-ROS.html"><![CDATA[<p>This post outlines how to create a Docker environment with ROS middleware setup.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="3.9.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" hreflang="en" /><updated>2023-12-12T23:38:22+00:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Chris Holmes</title><author><name>C. Holmes</name></author><entry><title type="html">Docker &amp;amp; Ros</title><link href="http://localhost:4000/2023/11/24/Docker-&-ROS.html" rel="alternate" type="text/html" title="Docker &amp;amp; Ros" /><published>2023-11-24T00:00:00+00:00</published><updated>2023-11-24T00:00:00+00:00</updated><id>http://localhost:4000/2023/11/24/Docker-&amp;-ROS</id><content type="html" xml:base="http://localhost:4000/2023/11/24/Docker-&amp;-ROS.html"><![CDATA[<p>This post outlines how to create a Docker environment with ROS middleware setup.</p>
 
 <p>Docker offers a great amount of portability when it comes to preparing software environments, this lends well when developing applications with middleware such as ROS (Robotics Operating System) where managing a large amount of software libraries and portability maybe necessary.</p>
 
@@ -8,25 +8,113 @@
 
 <p>I use knowledge about my system requirements to create the Dockerfile. For this build, I have the following requirements.</p>
 <ul>
-  <li>Ubuntu 20 - Operating system compatibility</li>
-  <li>Noetic - ROS Version</li>
-  <li>OpenCV 4.4.0 - Library Version</li>
-  <li>CUDA - Nvidia GPU utilisation</li>
+  <li>Operating system compatibility - Ubuntu 20</li>
+  <li>Nvidia GPU utilisation - Native PC driver and CUDA version</li>
+  <li>ROS Version - Noetic</li>
 </ul>
 
 <p>First, let’s create a Dockerfile. Create this file in a suitable directory necessary to store the docker files for you project.</p>
 <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">holmech@linux-desktop:~$</span><span class="w"> </span><span class="nb">touch </span>Dockerfile.base
 </code></pre></div></div>
-
-<h2 id="updating-the-dockerfile">Updating the Dockerfile</h2>
+<h2 id="the-dockerfile">The Dockerfile</h2>
 <p>In a text editor if your choosing, the Dockerfile can now be edited. I’m using VS Code.
-Using the <code class="language-plaintext highlighter-rouge">FROM</code> command, a base image is specified as a starting point. Then to assist with the build process, the <code class="language-plaintext highlighter-rouge">USER</code> is specified. The last argument in the file facilitates install of some libraries without necessity to interact with the user during the process. More information on this can be found below.</p>
+Using the <code class="language-plaintext highlighter-rouge">FROM</code> command, a base image is specified as a starting point, this can be identified from <a href="https://hub.docker.com/">Docker hub</a>. Then to assist with the build process, the <code class="language-plaintext highlighter-rouge">USER</code> is specified. The last argument in the file facilitates install of some libraries without necessity to interact with the user during the process. More information on this can be found below.</p>
 
 <p><a href="https://stackoverflow.com/questions/63476497/docker-build-with-ubuntu-18-04-image-hangs-after-prompting-for-country-of-origin">https://stackoverflow.com/questions/63476497/docker-build-with-ubuntu-18-04-image-hangs-after-prompting-for-country-of-origin</a></p>
 
-<p>Then, let’s try and run a system update to validate we can successfully install packages.</p>
+<p>Then, we can run <code class="language-plaintext highlighter-rouge">apt-get</code> to try and install a system update to validate packages can be successfully installed.</p>
 
-<h3 id="dockerfile">Dockerfile</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM nvidia/cuda:11.1.1-devel-ubuntu20.04
+
+USER root
+
+# disable interactive configuration mode
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update \
+    &amp;&amp; \
+    apt-get install -y
+</code></pre></div></div>
+<p>Save the Dockerfile.</p>
+
+<h2 id="the-image">The Image</h2>
+
+<p>We then need to try and build the image for the first time. Using the <code class="language-plaintext highlighter-rouge">build</code> command, the <code class="language-plaintext highlighter-rouge">-t</code> argument is used to name the image. This name takes the username first followed by the image name. The <code class="language-plaintext highlighter-rouge">-f</code> argument points the build process to the file including the desired build instructions, in this case the <code class="language-plaintext highlighter-rouge">Dockerfile.base</code> file just created.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">holmech@linux-desktop:~$</span><span class="w"> </span>docker build <span class="nt">-t</span> holmec/noetic-base <span class="nt">-f</span> Dockerfile.base <span class="nb">.</span>
+</code></pre></div></div>
+
+<p>The command may take some time to complete. A successful build will display no errors in the terminal window output. Then the existence of our new image can be validated using the following command.</p>
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">holmech@linux-desktop:~$</span><span class="w"> </span>docker image <span class="nb">ls</span>
+</code></pre></div></div>
+<p>This will show the image name, in this case <code class="language-plaintext highlighter-rouge">holmec/noetic-base</code>, the tag is shown in the next column but as we didn’t explicitly define the tag, this will probably show as <code class="language-plaintext highlighter-rouge">latest</code>. There will also be an image ID, the time period passed since the image was created and finally the size of the image.</p>
+
+<h2 id="the-container">The Container</h2>
+
+<p>As a quick test, a container can easily be instantiated from our image using the <code class="language-plaintext highlighter-rouge">docker run</code> command, the full command is shown below. The <code class="language-plaintext highlighter-rouge">--rm</code> argument instructs docker to remove the container after it is closed and the <code class="language-plaintext highlighter-rouge">-it</code> argument is short for interactive with tty, this allows your terminal window to interact with the container.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">holmech@linux-desktop:~$</span><span class="w"> </span>docker run <span class="nt">--rm</span> <span class="nt">-it</span> holmec/noetic-base
+</code></pre></div></div>
+
+<p>The terminal window will then update and the prompt will display <code class="language-plaintext highlighter-rouge">root</code> as the user. In a seperate terminal the <code class="language-plaintext highlighter-rouge">docker container ls</code> command can be used to display all current running containers. <code class="language-plaintext highlighter-rouge">ctrl + d</code> will exit the container, notice that running <code class="language-plaintext highlighter-rouge">docker container ls</code> again will show that the container is no longer in existence. Take care, any changes that will have been made whilst the container was open will now have been lost.</p>
+
+<p>Great, we have a full working pipeline and a good starting point. Reviewing the system requirements, the first requirement to use Ubuntu 20 as the operating system is now complete as we used this for our base image. This can be validated by running <code class="language-plaintext highlighter-rouge">uname -a</code> inside the container.
+The next requirement is to get access to the native Nvidia GPU driver and CUDA toolkit. See my driver and CUDA versions below for reference.</p>
+<li>Driver Version: 525.147.05</li>
+<li>CUDA Version: 12.0</li>
+<p>We can use a command to access the Nvidia GPU when running a container, but first we need to ensure the NVIDIA Container Toolkit is installed inside the linux operating system. Follow the (<a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html">Installing the NVIDIA Container Toolkit</a>) link for instructions if you’re unsure.</p>
+
+<p>As some additional arugments will now be add when running a contrainter, it’s easier to create a shell script for this. <code class="language-plaintext highlighter-rouge">touch run.sh</code>.</p>
+
+<p>This is my run file.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/bin/bash
+
+xhost +
+
+docker run -it --rm\
+    --runtime=nvidia \
+    --gpus all \
+    --net=host \
+    --env="DISPLAY" \
+    --env=TERM="xterm-color" \
+    --env=HOME="/home/" \
+    --name="holmec/noetic-base-test" \
+    --privileged=True \
+    holmec/noetic-base
+</code></pre></div></div>
+<p>I have included a few additional commands to ease installations of libraries but most importantly are the <code class="language-plaintext highlighter-rouge">--runtime=nvidia</code> and <code class="language-plaintext highlighter-rouge">--gpus all</code> arguments. These faciliate access to the host operating system Nvidia driver and runtime. Save the <code class="language-plaintext highlighter-rouge">run.sh</code> file and execute as below.</p>
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">holmech@linux-desktop:~$</span><span class="w"> </span>./run.sh
+</code></pre></div></div>
+
+<p>When inside the container, check the output of the Nvidia driver and CUDA with <code class="language-plaintext highlighter-rouge">nvidia-smi</code> command. The output should look like below.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> +-----------------------------------------------------------------------------+
+| NVIDIA-SMI 525.147.05   Driver Version: 525.147.05   CUDA Version: 12.0     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  NVIDIA GeForce ...  Off  | 00000000:01:00.0  On |                  Off |
+|  0%   27C    P8    20W / 450W |    802MiB / 24564MiB |      6%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
++-----------------------------------------------------------------------------+
+</code></pre></div></div>
+
+<h2 id="ros-install">ROS Install</h2>
+
+<p>All we need to do now to fullful our remaining system requirements is update the Dockerfile and rebuild the image. Let’s start with the ROS middleware. Below is my updated Dockerfile including the ROS installation. Once built, validation the image by running <code class="language-plaintext highlighter-rouge">roscore</code> inside the container. You may need to first source it <code class="language-plaintext highlighter-rouge">source /opt/ros/noetic/setup.bash</code>. All being well you should now be able to run a instance of roscore inside the container.</p>
+
+<p>Below is the full Dockerfile.</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM nvidia/cuda:11.1.1-devel-ubuntu20.04
 
 USER root
@@ -37,15 +125,51 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
     &amp;&amp; \
     apt-get install -y \
+    build-essential \
+        ca-certificates \
+        cmake-qt-gui \
+        file \
+        git \
+        gnome-terminal \
+        hicolor-icon-theme \
+        language-pack-en \
+        locales \
+        nano \
+        pulseaudio \
+        software-properties-common \
+        sudo \
+        tar \
+        unzip \
+        vim \
+        wget \
+        xz-utils \
+        net-tools \
+        ifstat \
+        chrony \
+        curl \
+        libncurses-dev \
+        build-essential \
+        cmake \
+        git \
+        pkg-config \
+        python3-dev \
+        linux-headers-generic \
+        python3-pip \
     &amp;&amp; \
     rm -rf /var/lib/apt/lists/* \
     &amp;&amp; \
     update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX
-</code></pre></div></div>
 
-<p>Save the file. We then need to try and build the image for the first time. Using the <code class="language-plaintext highlighter-rouge">build</code> command, the <code class="language-plaintext highlighter-rouge">-t</code> argument is used to tag the image. This tag takes the username first followed by the image name. The <code class="language-plaintext highlighter-rouge">-f</code> argument is used to use the point the build process to the file we want that includes the build instructions, in this case the <code class="language-plaintext highlighter-rouge">Dockerfile.base</code> file just created.</p>
+RUN echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" &gt; /etc/apt/sources.list.d/ros-latest.list
+RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
 
-<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">holmech@linux-desktop:~$</span><span class="w"> </span>docker build <span class="nt">-t</span> holmec/noetic-base <span class="nt">-f</span> Dockerfile.base <span class="nb">.</span>
-</code></pre></div></div>
-
-<p>The command may take some time to complete. A successful build should have the following terminal output.</p>]]></content><author><name>C. Holmes</name></author><summary type="html"><![CDATA[This post outlines how to create a Docker environment with ROS middleware setup.]]></summary></entry><entry><title type="html">Face Detection (hog &amp;amp; Svm)</title><link href="http://localhost:4000/2023/11/23/Face-Detection-(HOG-&-SVM).html" rel="alternate" type="text/html" title="Face Detection (hog &amp;amp; Svm)" /><published>2023-11-23T00:00:00+00:00</published><updated>2023-11-23T00:00:00+00:00</updated><id>http://localhost:4000/2023/11/23/Face-Detection-(HOG-&amp;-SVM)</id><content type="html" xml:base="http://localhost:4000/2023/11/23/Face-Detection-(HOG-&amp;-SVM).html"><![CDATA[<p>This post outlines using Histogram of Gradients (HOG) &amp; Support Vector Machines (SVM) for face detection with OpenCV.</p>]]></content><author><name>C. Holmes</name></author><summary type="html"><![CDATA[This post outlines using Histogram of Gradients (HOG) &amp; Support Vector Machines (SVM) for face detection with OpenCV.]]></summary></entry><entry><title type="html">Linear &amp;amp; Logistic Regression</title><link href="http://localhost:4000/2023/11/23/Linear-&-Logistic-Regression.html" rel="alternate" type="text/html" title="Linear &amp;amp; Logistic Regression" /><published>2023-11-23T00:00:00+00:00</published><updated>2023-11-23T00:00:00+00:00</updated><id>http://localhost:4000/2023/11/23/Linear-&amp;-Logistic-Regression</id><content type="html" xml:base="http://localhost:4000/2023/11/23/Linear-&amp;-Logistic-Regression.html"><![CDATA[<p>An outline of creating linear and logistic regression with C++.</p>]]></content><author><name>C. Holmes</name></author><summary type="html"><![CDATA[An outline of creating linear and logistic regression with C++.]]></summary></entry><entry><title type="html">Playstation 4 Controller With Can</title><link href="http://localhost:4000/2023/11/23/Playstation-4-Controller-with-CAN.html" rel="alternate" type="text/html" title="Playstation 4 Controller With Can" /><published>2023-11-23T00:00:00+00:00</published><updated>2023-11-23T00:00:00+00:00</updated><id>http://localhost:4000/2023/11/23/Playstation-4-Controller-with-CAN</id><content type="html" xml:base="http://localhost:4000/2023/11/23/Playstation-4-Controller-with-CAN.html"><![CDATA[<p>Communicating Playstation 4 games controller inputs using CAN.</p>]]></content><author><name>C. Holmes</name></author><summary type="html"><![CDATA[Communicating Playstation 4 games controller inputs using CAN.]]></summary></entry></feed>
+ RUN apt-get update \
+     &amp;&amp; \
+     apt-get install -y \
+        ros-noetic-desktop-full \
+        ros-noetic-rosdoc-lite \
+        python3-rosdep &amp;&amp; \
+    apt-get clean -y &amp;&amp; \
+    apt-get autoremove -y &amp;&amp; \
+    rm -rf /var/lib/apt/lists/*
+</code></pre></div></div>]]></content><author><name>C. Holmes</name></author><summary type="html"><![CDATA[This post outlines how to create a Docker environment with ROS middleware setup.]]></summary></entry><entry><title type="html">Face Detection (hog &amp;amp; Svm)</title><link href="http://localhost:4000/2023/11/23/Face-Detection-(HOG-&-SVM).html" rel="alternate" type="text/html" title="Face Detection (hog &amp;amp; Svm)" /><published>2023-11-23T00:00:00+00:00</published><updated>2023-11-23T00:00:00+00:00</updated><id>http://localhost:4000/2023/11/23/Face-Detection-(HOG-&amp;-SVM)</id><content type="html" xml:base="http://localhost:4000/2023/11/23/Face-Detection-(HOG-&amp;-SVM).html"><![CDATA[<p>This post outlines using Histogram of Gradients (HOG) &amp; Support Vector Machines (SVM) for face detection with OpenCV.</p>]]></content><author><name>C. Holmes</name></author><summary type="html"><![CDATA[This post outlines using Histogram of Gradients (HOG) &amp; Support Vector Machines (SVM) for face detection with OpenCV.]]></summary></entry><entry><title type="html">Linear &amp;amp; Logistic Regression</title><link href="http://localhost:4000/2023/11/23/Linear-&-Logistic-Regression.html" rel="alternate" type="text/html" title="Linear &amp;amp; Logistic Regression" /><published>2023-11-23T00:00:00+00:00</published><updated>2023-11-23T00:00:00+00:00</updated><id>http://localhost:4000/2023/11/23/Linear-&amp;-Logistic-Regression</id><content type="html" xml:base="http://localhost:4000/2023/11/23/Linear-&amp;-Logistic-Regression.html"><![CDATA[<p>An outline of creating linear and logistic regression with C++.</p>]]></content><author><name>C. Holmes</name></author><summary type="html"><![CDATA[An outline of creating linear and logistic regression with C++.]]></summary></entry><entry><title type="html">Playstation 4 Controller With Can</title><link href="http://localhost:4000/2023/11/23/Playstation-4-Controller-with-CAN.html" rel="alternate" type="text/html" title="Playstation 4 Controller With Can" /><published>2023-11-23T00:00:00+00:00</published><updated>2023-11-23T00:00:00+00:00</updated><id>http://localhost:4000/2023/11/23/Playstation-4-Controller-with-CAN</id><content type="html" xml:base="http://localhost:4000/2023/11/23/Playstation-4-Controller-with-CAN.html"><![CDATA[<p>Communicating Playstation 4 games controller inputs using CAN.</p>]]></content><author><name>C. Holmes</name></author><summary type="html"><![CDATA[Communicating Playstation 4 games controller inputs using CAN.]]></summary></entry></feed>
