@@ -21,7 +21,7 @@ First, let's create a Dockerfile. Create this file in a suitable directory neces
 holmech@linux-desktop:~$ touch Dockerfile.base
 ```
 ## The Dockerfile
-In a text editor if your choosing, the Dockerfile can now be edited. I'm using VS Code.
+In a text editor of your choosing, the Dockerfile can now be edited. I'm using VS Code.
 Using the ```FROM``` command, a base image is specified as a starting point, this can be identified from [Docker hub](https://hub.docker.com/). Then to assist with the build process, the ```USER``` is specified. The last argument in the file facilitates install of some libraries without necessity to interact with the user during the process. More information on this can be found below. 
 
 <https://stackoverflow.com/questions/63476497/docker-build-with-ubuntu-18-04-image-hangs-after-prompting-for-country-of-origin>
@@ -122,7 +122,7 @@ When inside the container, check the output of the Nvidia driver and CUDA with `
 
 ## ROS Install
 
-All we need to do now to fullful our remaining system requirements is update the Dockerfile and rebuild the image. Let's start with the ROS middleware. Below is my updated Dockerfile including the ROS installation. Once built, validation the image by running ```roscore``` inside the container. You may need to first source it ```source /opt/ros/noetic/setup.bash```. All being well you should now be able to run a instance of roscore inside the container.
+All we need to do now to fullfil our remaining system requirements is update the Dockerfile and rebuild the image. Let's start with the ROS middleware. Below is my updated Dockerfile including the ROS installation. Once built, validation the image by running ```roscore``` inside the container. You may need to first source it ```source /opt/ros/noetic/setup.bash```. All being well you should now be able to run a instance of roscore inside the container.
 
 Below is the full Dockerfile. 
 

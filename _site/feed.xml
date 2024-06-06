@@ -1,4 +1,117 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="3.9.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" hreflang="en" /><updated>2023-12-13T00:50:55+00:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Chris Holmes</title><author><name>C. Holmes</name></author><entry><title type="html">Docker &amp;amp; Ros</title><link href="http://localhost:4000/2023/11/24/Docker-&-ROS.html" rel="alternate" type="text/html" title="Docker &amp;amp; Ros" /><published>2023-11-24T00:00:00+00:00</published><updated>2023-11-24T00:00:00+00:00</updated><id>http://localhost:4000/2023/11/24/Docker-&amp;-ROS</id><content type="html" xml:base="http://localhost:4000/2023/11/24/Docker-&amp;-ROS.html"><![CDATA[<p>This post outlines how to create a Docker environment with ROS middleware setup.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="3.9.3">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" hreflang="en" /><updated>2024-06-06T16:14:58+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Chris Holmes</title><author><name>C. Holmes</name></author><entry><title type="html">Proportional Water Tank Controller</title><link href="http://0.0.0.0:4000/2024/06/06/Proportional-Water-Tank-Controller.html" rel="alternate" type="text/html" title="Proportional Water Tank Controller" /><published>2024-06-06T00:00:00+00:00</published><updated>2024-06-06T00:00:00+00:00</updated><id>http://0.0.0.0:4000/2024/06/06/Proportional-Water-Tank-Controller</id><content type="html" xml:base="http://0.0.0.0:4000/2024/06/06/Proportional-Water-Tank-Controller.html"><![CDATA[<p>This post covers creating a simple proportional controller in c++ to manage the water level in a water tank.</p>
+
+<h2 id="the-theory">The Theory</h2>
+
+<p>The target is to manage the volume of the water tank by controlling the mass flow rate ($\dot m$) of the water. The diagram below outlines the closed loop control system used for the program.
+<br /></p>
+
+<p><img src="/system.png" alt="Test Image" /></p>
+
+<p>The output of the proportional controller will be $\dot m$, which will be the input to our plant (water tank). The output of the plant will be the volume of water in the tank ($Vol$). To mathematically model the water tank, the below equations can be used. The discrete form will be required for the computer program.</p>
+
+<p>Continous Form
+\(Vol(t) = Vol_i + {1 \over \rho} \int_{0}^{t} \dot m * dt\)</p>
+
+<p>Discrete Form
+\(Vol[t_i] = Vol[t_i-1] + ({ {1 \over \rho} \ \dot m \ Vol[t_i-1] + {1 \over \rho} \ \dot m \ Vol[t_i] \over 2}) \ \Delta t\)</p>
+
+<p>The volume output will be compared with the reference value, then the proportional controller will use this to generate a $\dot m$ output value. The controller uses a gain denoted as $K_p$ with the error term to determine the new $\dot m$ value.</p>
+
+<h2 id="the-program">The Program</h2>
+
+<p>When executed, the program will request the user to input a reference value, this tells the program what the desired final tank volume should be and gives the reference value to the controller.</p>
+
+<p>The target reference value and start volume value are then printed for confirmation. The start volume is always zero. Two integer variables are created to store these values respectively. <code class="language-plaintext highlighter-rouge">tankVolumeReference</code>,<code class="language-plaintext highlighter-rouge">tankVolumeReference</code>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::cout &lt;&lt; "Please input a reference value: ";
+std::cin &gt;&gt;  tankVolumeReference;
+std::cout &lt;&lt; "\n";
+std::cout &lt;&lt; "Target Volume Reference at Start -&gt; " &lt;&lt; tankVolumeReference &lt;&lt; std::endl;
+std::cout &lt;&lt; "Tank Volume Value at Start -&gt; " &lt;&lt; tankVolumeInitial &lt;&lt; std::endl;
+std::cout &lt;&lt; "\n";
+</code></pre></div></div>
+
+<p>Before the simulation loop commences, the time length and sample time interval of the program is set. The total length is calculated by dividing the end time by the time interval. For example, for a time lenght of 10 secs with a sample time of 0.04 secs, we will receive 250 samples.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>double dt = 0.04; // Simulation time interval
+int t_end = 10; // Simulation End Time
+double tLength = t_end / dt; // Vector length of time points based on interval
+</code></pre></div></div>
+
+<p>A for loop is used for the simulation loop using <code class="language-plaintext highlighter-rouge">tLength</code>. First, the reference tank volume is retrieved, this is then compared with the actual tank volume to find the error. This error is then multiplied by the controller gain $K_p$ to give the resultant $\dot m$ for the loop iteration $i$.</p>
+
+<p>Then using the discrete water tank model from above, the new tank volume can be calculated. **Note. the program includes water density in the denominator, this allows for simulation of liquids other than water where $\rho$ $\ != 1$</p>
+
+<p>Previous $\dot m$ and error values are then updated ready for the next loop iteration.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>for (int i = 0; i &lt; tLength; i++){
+
+    // Determine reference value vector for the tank
+    tankVolumeRefVec[i] = tankVolumeReference;
+
+    // Calculate the error between reference and actual
+    errorPrev = tankVolumeRefVec[i] - tankVolumeActualPrev;
+
+    // Calculate the control input, mass flow rate
+    mDot[i] = Kp * errorPrev;
+    
+    // Calculate the true tank volume in the next time step using numerical integration
+    tankVolumeActualVec[i] = tankVolumeActualPrev + (mDotPrev + mDot[i]) / (2*waterDensity)*(dt);
+
+    tankVolumeActualPrev = tankVolumeActualVec[i];
+    mDotPrev = mDot[i];
+}
+</code></pre></div></div>
+
+<p>To have data available for analysis, a simple file writer is shown. A file called <code class="language-plaintext highlighter-rouge">sim_out</code> is created with a header ready for population of the simulation data.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::ofstream sim_out_file;
+sim_out_file.open("sim_out.csv");
+sim_out_file &lt;&lt; "t,reference,error,actual,dt,mdot\n";
+</code></pre></div></div>
+
+<p>At the end of each simulation loop, a new row of data is populated inside the file.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sim_out_file &lt;&lt; i &lt;&lt; "," &lt;&lt; tankVolumeRefVec[i] &lt;&lt; "," &lt;&lt; errorPrev &lt;&lt; "," &lt;&lt; tankVolumeActualVec[i] &lt;&lt; "," &lt;&lt; dt &lt;&lt; "," &lt;&lt; mDotPrev &lt;&lt; "\n";
+</code></pre></div></div>
+
+<h2 id="the-analysis">The Analysis</h2>
+
+<p>This section is in Python, I use the Pandas library for importing and handling the data. the Bokeh package is used for plotting.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import pandas as pd
+from bokeh.io import push_notebook, show, output_notebook
+from bokeh.resources import INLINE
+from bokeh.models import Label, LabelSet
+from bokeh.models.tools import HoverTool
+from bokeh.plotting import figure
+output_notebook(INLINE)
+</code></pre></div></div>
+
+<p>The data file is then imported into a dataframe and the first 11 entries are displayed.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sim_data = pd.read_csv("sim_out.csv", sep=',', skiprows=0)
+sim_data.columns = ['index', 'reference', 'error', 'actual', 'dt', 'mdot']
+sim_data.head(11)
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>index	reference	error	actual	    dt	    mdot
+0	80	        80.0000	1.60000	    0.04    80000.0
+1	80	        78.4000	4.76800	    0.04    78400.0
+2	80	        75.2320	7.84064	    0.04    75232.0
+3	80	        72.1594	10.78850    0.04    72159.4
+4	80	        69.2115	13.61590    0.04    69211.5
+5	80	        66.3841	16.32780    0.04    66384.1
+6	80	        63.6722	18.92890    0.04    63672.2
+7	80	        61.0711	21.42380    0.04    61071.1
+8	80	        58.5762	23.81670    0.04    58576.2
+9	80	        56.1833	26.11190    0.04    56183.3
+10	80	        53.8881	28.31340    0.04    53888.1
+</code></pre></div></div>
+
+<p>Then finally, we can see graph the reference and actual volume values. We can see that the blue reference maintains its value, the user must have input a value of 80. The red line shows the new volume being updated by our controller. When the error reaches zero and the reference value is matched, the $\dot m$ then tends to zero as we would expect.</p>
+
+<p><img src="/analysis.png" alt="Test Image" /></p>]]></content><author><name>C. Holmes</name></author><summary type="html"><![CDATA[This post covers creating a simple proportional controller in c++ to manage the water level in a water tank.]]></summary></entry><entry><title type="html">Docker &amp;amp; Ros</title><link href="http://0.0.0.0:4000/2023/11/24/Docker-&-ROS.html" rel="alternate" type="text/html" title="Docker &amp;amp; Ros" /><published>2023-11-24T00:00:00+00:00</published><updated>2023-11-24T00:00:00+00:00</updated><id>http://0.0.0.0:4000/2023/11/24/Docker-&amp;-ROS</id><content type="html" xml:base="http://0.0.0.0:4000/2023/11/24/Docker-&amp;-ROS.html"><![CDATA[<p>This post outlines how to create a Docker environment with ROS middleware setup.</p>
 
 <p>Docker offers a great amount of portability when it comes to preparing software environments, this lends well when developing applications with middleware such as ROS (Robotics Operating System) where managing a large amount of software libraries and portability maybe necessary.</p>
 
@@ -17,7 +130,7 @@
 <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">holmech@linux-desktop:~$</span><span class="w"> </span><span class="nb">touch </span>Dockerfile.base
 </code></pre></div></div>
 <h2 id="the-dockerfile">The Dockerfile</h2>
-<p>In a text editor if your choosing, the Dockerfile can now be edited. I’m using VS Code.
+<p>In a text editor of your choosing, the Dockerfile can now be edited. I’m using VS Code.
 Using the <code class="language-plaintext highlighter-rouge">FROM</code> command, a base image is specified as a starting point, this can be identified from <a href="https://hub.docker.com/">Docker hub</a>. Then to assist with the build process, the <code class="language-plaintext highlighter-rouge">USER</code> is specified. The last argument in the file facilitates install of some libraries without necessity to interact with the user during the process. More information on this can be found below.</p>
 
 <p><a href="https://stackoverflow.com/questions/63476497/docker-build-with-ubuntu-18-04-image-hangs-after-prompting-for-country-of-origin">https://stackoverflow.com/questions/63476497/docker-build-with-ubuntu-18-04-image-hangs-after-prompting-for-country-of-origin</a></p>
@@ -111,7 +224,7 @@ docker run -it --rm\
 
 <h2 id="ros-install">ROS Install</h2>
 
-<p>All we need to do now to fullful our remaining system requirements is update the Dockerfile and rebuild the image. Let’s start with the ROS middleware. Below is my updated Dockerfile including the ROS installation. Once built, validation the image by running <code class="language-plaintext highlighter-rouge">roscore</code> inside the container. You may need to first source it <code class="language-plaintext highlighter-rouge">source /opt/ros/noetic/setup.bash</code>. All being well you should now be able to run a instance of roscore inside the container.</p>
+<p>All we need to do now to fullfil our remaining system requirements is update the Dockerfile and rebuild the image. Let’s start with the ROS middleware. Below is my updated Dockerfile including the ROS installation. Once built, validation the image by running <code class="language-plaintext highlighter-rouge">roscore</code> inside the container. You may need to first source it <code class="language-plaintext highlighter-rouge">source /opt/ros/noetic/setup.bash</code>. All being well you should now be able to run a instance of roscore inside the container.</p>
 
 <p>Below is the full Dockerfile.</p>
 
@@ -172,8 +285,4 @@ RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sud
     apt-get clean -y &amp;&amp; \
     apt-get autoremove -y &amp;&amp; \
     rm -rf /var/lib/apt/lists/*
-</code></pre></div></div>]]></content><author><name>C. Holmes</name></author><summary type="html"><![CDATA[This post outlines how to create a Docker environment with ROS middleware setup.]]></summary></entry><entry><title type="html">Face Detection (hog &amp;amp; Svm)</title><link href="http://localhost:4000/2023/11/23/Face-Detection-(HOG-&-SVM).html" rel="alternate" type="text/html" title="Face Detection (hog &amp;amp; Svm)" /><published>2023-11-23T00:00:00+00:00</published><updated>2023-11-23T00:00:00+00:00</updated><id>http://localhost:4000/2023/11/23/Face-Detection-(HOG-&amp;-SVM)</id><content type="html" xml:base="http://localhost:4000/2023/11/23/Face-Detection-(HOG-&amp;-SVM).html"><![CDATA[<p>This post outlines using Histogram of Gradients (HOG) &amp; Support Vector Machines (SVM) for face detection with OpenCV.</p>]]></content><author><name>C. Holmes</name></author><summary type="html"><![CDATA[This post outlines using Histogram of Gradients (HOG) &amp; Support Vector Machines (SVM) for face detection with OpenCV.]]></summary></entry><entry><title type="html">Linear &amp;amp; Logistic Regression</title><link href="http://localhost:4000/2023/11/23/Linear-&-Logistic-Regression.html" rel="alternate" type="text/html" title="Linear &amp;amp; Logistic Regression" /><published>2023-11-23T00:00:00+00:00</published><updated>2023-11-23T00:00:00+00:00</updated><id>http://localhost:4000/2023/11/23/Linear-&amp;-Logistic-Regression</id><content type="html" xml:base="http://localhost:4000/2023/11/23/Linear-&amp;-Logistic-Regression.html"><![CDATA[<p>An outline of creating linear and logistic regression with C++.</p>]]></content><author><name>C. Holmes</name></author><summary type="html"><![CDATA[An outline of creating linear and logistic regression with C++.]]></summary></entry><entry><title type="html">Playstation 4 Controller With Can</title><link href="http://localhost:4000/2023/11/23/Playstation-4-Controller-with-CAN.html" rel="alternate" type="text/html" title="Playstation 4 Controller With Can" /><published>2023-11-23T00:00:00+00:00</published><updated>2023-11-23T00:00:00+00:00</updated><id>http://localhost:4000/2023/11/23/Playstation-4-Controller-with-CAN</id><content type="html" xml:base="http://localhost:4000/2023/11/23/Playstation-4-Controller-with-CAN.html"><![CDATA[<p>This post outlines a Python program made for communicating Playstation 4 controller button inputs over CAN bus.</p>
-
-<p>The programm is made up of two files <code class="language-plaintext highlighter-rouge">launch.py</code> and <code class="language-plaintext highlighter-rouge">PS4_CAN_Send_FU.py</code>.</p>
-
-<p>The <code class="language-plaintext highlighter-rouge">PS4_CAN_Send_FU.py</code> file contains the program class and functional definitions.</p>]]></content><author><name>C. Holmes</name></author><summary type="html"><![CDATA[This post outlines a Python program made for communicating Playstation 4 controller button inputs over CAN bus.]]></summary></entry></feed>
+</code></pre></div></div>]]></content><author><name>C. Holmes</name></author><summary type="html"><![CDATA[This post outlines how to create a Docker environment with ROS middleware setup.]]></summary></entry></feed>

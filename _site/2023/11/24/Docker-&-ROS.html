@@ -14,8 +14,8 @@
 <meta property="og:locale" content="en" />
 <meta name="description" content="This post outlines how to create a Docker environment with ROS middleware setup." />
 <meta property="og:description" content="This post outlines how to create a Docker environment with ROS middleware setup." />
-<link rel="canonical" href="http://localhost:4000/2023/11/24/Docker-&-ROS.html" />
-<meta property="og:url" content="http://localhost:4000/2023/11/24/Docker-&-ROS.html" />
+<link rel="canonical" href="http://0.0.0.0:4000/2023/11/24/Docker-&-ROS.html" />
+<meta property="og:url" content="http://0.0.0.0:4000/2023/11/24/Docker-&-ROS.html" />
 <meta property="og:site_name" content="Chris Holmes" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2023-11-24T00:00:00+00:00" />
@@ -23,11 +23,11 @@
 <meta property="twitter:title" content="Docker &amp; Ros" />
 <meta name="google-site-verification" content="u4WXQl0Eu66rsQo2kRdCNx" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"C. Holmes"},"dateModified":"2023-11-24T00:00:00+00:00","datePublished":"2023-11-24T00:00:00+00:00","description":"This post outlines how to create a Docker environment with ROS middleware setup.","headline":"Docker &amp; Ros","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2023/11/24/Docker-&-ROS.html"},"url":"http://localhost:4000/2023/11/24/Docker-&-ROS.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"C. Holmes"},"dateModified":"2023-11-24T00:00:00+00:00","datePublished":"2023-11-24T00:00:00+00:00","description":"This post outlines how to create a Docker environment with ROS middleware setup.","headline":"Docker &amp; Ros","mainEntityOfPage":{"@type":"WebPage","@id":"http://0.0.0.0:4000/2023/11/24/Docker-&-ROS.html"},"url":"http://0.0.0.0:4000/2023/11/24/Docker-&-ROS.html"}</script>
 <!-- End Jekyll SEO tag -->
 
 
-<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Chris Holmes" />
+<link type="application/atom+xml" rel="alternate" href="http://0.0.0.0:4000/feed.xml" title="Chris Holmes" />
 
 
 
@@ -151,7 +151,7 @@
 <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">holmech@linux-desktop:~$</span><span class="w"> </span><span class="nb">touch </span>Dockerfile.base
 </code></pre></div></div>
 <h2 id="the-dockerfile">The Dockerfile</h2>
-<p>In a text editor if your choosing, the Dockerfile can now be edited. I’m using VS Code.
+<p>In a text editor of your choosing, the Dockerfile can now be edited. I’m using VS Code.
 Using the <code class="language-plaintext highlighter-rouge">FROM</code> command, a base image is specified as a starting point, this can be identified from <a href="https://hub.docker.com/">Docker hub</a>. Then to assist with the build process, the <code class="language-plaintext highlighter-rouge">USER</code> is specified. The last argument in the file facilitates install of some libraries without necessity to interact with the user during the process. More information on this can be found below.</p>
 
 <p><a href="https://stackoverflow.com/questions/63476497/docker-build-with-ubuntu-18-04-image-hangs-after-prompting-for-country-of-origin">https://stackoverflow.com/questions/63476497/docker-build-with-ubuntu-18-04-image-hangs-after-prompting-for-country-of-origin</a></p>
@@ -245,7 +245,7 @@ docker run -it --rm\
 
 <h2 id="ros-install">ROS Install</h2>
 
-<p>All we need to do now to fullful our remaining system requirements is update the Dockerfile and rebuild the image. Let’s start with the ROS middleware. Below is my updated Dockerfile including the ROS installation. Once built, validation the image by running <code class="language-plaintext highlighter-rouge">roscore</code> inside the container. You may need to first source it <code class="language-plaintext highlighter-rouge">source /opt/ros/noetic/setup.bash</code>. All being well you should now be able to run a instance of roscore inside the container.</p>
+<p>All we need to do now to fullfil our remaining system requirements is update the Dockerfile and rebuild the image. Let’s start with the ROS middleware. Below is my updated Dockerfile including the ROS installation. Once built, validation the image by running <code class="language-plaintext highlighter-rouge">roscore</code> inside the container. You may need to first source it <code class="language-plaintext highlighter-rouge">source /opt/ros/noetic/setup.bash</code>. All being well you should now be able to run a instance of roscore inside the container.</p>
 
 <p>Below is the full Dockerfile.</p>
 
@@ -317,15 +317,15 @@ RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sud
 
     <nav class="post-pagination" role="navigation">
       
-        <a class="post-previous" href="/2023/11/23/Playstation-4-Controller-with-CAN.html">
-          <h4 class="post-pagination-label">Prev</h4>
-          <span class="post-pagination-title">
-            <i class="fas fa-arrow-left"></i> Playstation 4 Controller With Can
 
+      
+        <a class="post-next" href="/2024/06/06/Proportional-Water-Tank-Controller.html">
+          <h4 class="post-pagination-label">Next</h4>
+          <span class="post-pagination-title">
+            Proportional Water Tank Controller
+ <i class="fas fa-arrow-right"></i>
           </span>
         </a>
-      
-
       
     </nav>
   </footer>
