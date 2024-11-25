@@ -13,9 +13,9 @@ The target is to manage the volume of the water tank by controlling the mass flo
 The output of the proportional controller will be $\dot m$, which will be the input to our plant (water tank). The output of the plant will be the volume of water in the tank ($Vol$). To mathematically model the water tank, the below equations can be used. The discrete form will be required for the computer program. 
 
 Continous Form
-$$
+$
 Vol(t) = Vol_i + {1 \over \rho} \int_{0}^{t} \dot m * dt
-$$
+$
 
 
 Discrete Form
